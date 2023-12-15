@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-
+const url = process.env.DB_NAME
 const Connection = async() =>{
-    const DB = 'mongodb+srv://vinaykumarpatel75:Vinaykr%4075@cluster0.jwskmnj.mongodb.net/?retryWrites=true&w=majority';
+    const DB = `${url}`;
        try {
        await mongoose.connect(DB).then(() =>{
         console.log('Connection Sucessfully')
