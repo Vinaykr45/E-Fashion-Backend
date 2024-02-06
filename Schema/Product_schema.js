@@ -18,7 +18,7 @@ const addproductSchema = new mongoose.Schema({
         required:true
     },
     size:{
-        type:String,
+        type:Object,
         required:true
     },
     product_price:{
