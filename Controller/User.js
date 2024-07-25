@@ -1,5 +1,6 @@
 const users = require('../Schema/User_schema');
 const usersModal = require('../Schema/User_schema');
+const {sendMail} = require('../Controller/Otpsend')
 const jwt = require('jsonwebtoken');
 
 const addUser = async(req,res) => {
@@ -15,7 +16,7 @@ const addUser = async(req,res) => {
       newUser.save();
       res.status(201).json({msg:'User add Sucessfully',
       token:await newUser.generateToken(),
-      userId:newUser._id.toString()
+      userId:newUser._id.toString(),
       }
       )
     }
@@ -74,9 +75,54 @@ const loginUser = async(req,res) => {
   }
 }
 
+const addAddress = async (req,res) => {
+   const address = req.body.data;
+  
+   try {
+    await usersModal.updateOne({_id:address.id},
+    {$push:{addres:address}}
+    )
+    res.status(201).json('Address Add Successfully')
+    
+  } catch (error) {
+    res.status(401).json(error)
+  }
+}
+
 const logoutUser = async(req,res) => {
    res.clearCookie('jwt',{path:'/'});
    res.status(201).json('User Logout Sucesfully')
 }
 
-module.exports = {addUser,loginUser,logoutUser,getUser}
+const forgotPass = async(req,res) => {
+  const emailid = req.body.email;
+  // console.log(emailid)
+  try {
+    const check = await users.findOne({email:emailid});
+    // console.log(check.name)
+    if (check) {
+      res.status(200).json(check)
+    }
+  } catch (error) {
+    res.status(400)
+  }
+}
+
+const updatepass = async (req,res) => {
+  const pass = req.body.password;
+  const email = req.body.email;
+  try {
+    const check = await users.updateOne({email:email},
+     { $set:{
+        password:pass
+      }}
+    )
+    if (check) {
+      res.status(200).json('Password Update Successfuly')
+    }
+  } catch (error) {
+    res.status(400).json(error)
+  }
+}
+
+module.exports = {addUser,loginUser,logoutUser,getUser,addAddress,forgotPass,updatepass}

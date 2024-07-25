@@ -101,4 +101,27 @@ const deletedata = async(req,res) => {
 }
 
 
-module.exports = {Addproducts_add,getproducts,updateproducts,deletedata};
+const searchProduct = async(req,res) => {
+ const {title} = req.query;
+ const store = title.split(' ');
+//  console.log(store)
+  try {
+    const findtypes = await Productsmodal.find();
+    const typest = store.filter(items=>findtypes.map(e=>e.types).includes(items.toUpperCase()))[0];
+    const sub = store.filter(items=>findtypes.map(e=>e.subcategory.toUpperCase()).includes(items.toUpperCase()))[0];
+    const search = await Productsmodal.find({
+      $or:[
+        {product_name:{$regex:title,$options:"si"}},
+       {$and:[
+        {subcategory:{$regex:sub||'',$options:"si"}},
+        {types:{$regex:typest||'',$options:"si"}}
+       ]}
+      ]
+    })
+    res.status(200).json(search)
+  } catch (error) {
+    res.status(400).json(error)
+  }
+}
+
+module.exports = {Addproducts_add,getproducts,updateproducts,deletedata,searchProduct};
